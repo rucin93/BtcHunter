@@ -135,10 +135,10 @@ fn worker(database: &HashSet<String>, filter: &BloomFilter) {
 
         if DEBUG {
             count += 1.0;
-            if start.elapsed().as_secs_f64() % 3600.0 == 0.0 {
+            if count % 10000.0 == 0.0 {
                 let current_core = std::thread::current().id();
                 let elapsed = start.elapsed().as_secs_f64();
-                println!( "Core {:?} hash/s: {}", current_core, (count / elapsed / 3600.0).round() );
+                println!( "Core {:?} hash/s: {}", current_core, (count / elapsed).round() );
             }
         }
 
