@@ -8,7 +8,6 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use std::sync::{Arc, RwLock};
 use std::{
-    collections::HashSet,
     fs::File,
     io::{Write},
     time::Instant,
@@ -26,14 +25,16 @@ use tokio::task;
 const DB: &str = "Bitcoin_addresses_LATEST.txt";
 // const ERROR_RATE: f32 = 0.0001;
 const ERROR_RATE: f32 = 0.00001;
-const EXPECTED_SIZE: u32 = 50_000_000;
-const DEBUG: bool = true;
+const EXPECTED_SIZE: u32 = 50_000_000; // more than 40kk to make sure that filter is not exceeded
+const DEBUG: bool = false;
+// const MAX_CORES: usize = 1;
+const TEST: &str = "bc1q225sldtdwtjt7rm8ugedpurzujwdkt3c2xv4pt";
 
 #[tokio::main]
 async fn main() {
     println!("Starting...");
 
-    let mut database = HashSet::new();
+    let mut database = Vec::with_capacity(EXPECTED_SIZE as usize);
     let timer = Instant::now();
 
     let mut filter: BloomFilter = BloomFilter::with_rate(ERROR_RATE, EXPECTED_SIZE);
@@ -41,7 +42,7 @@ async fn main() {
     if let Ok(lines) = read_lines(DB) {
         for line in lines {
             if let Ok(adress) = line {
-                database.insert(adress.to_string());
+                database.push(adress.to_string());
                 filter.insert(&adress);
             }
         }
@@ -49,6 +50,11 @@ async fn main() {
 
     println!( "Load database completed in {:.2?} - size: {:?}", timer.elapsed(), database.len() );
 
+    // test
+
+    if filter.contains(&TEST) && database.contains(&TEST.clone().to_string()) {
+        println!("Address is inside - Test passed")
+    }
     // single thread
     // worker(&database, &filter);
 
@@ -56,7 +62,12 @@ async fn main() {
     let database_ = Arc::new(RwLock::new(database));
     let filter_ = Arc::new(RwLock::new(filter));
 
+
     let num_cores = num_cpus::get();
+    // if MAX_CORES > 0 && false {
+        // num_cores = MAX_CORES;
+    // }
+
     println!("Running on {} cores", num_cores);
     
     for _ in 0..num_cores {
@@ -91,7 +102,7 @@ fn check_address(
     private_key: &PrivateKey,
     secret_key: SecretKey,
     address: &Address,
-    database: &HashSet<String>,
+    database: &Vec<String>,
     public_key: PublicKey,
 ) {
     let address_string = address.to_string();
@@ -119,7 +130,7 @@ fn found_file_path(file: String) -> String {
     path.to_str().unwrap().to_string()
 }
 
-fn worker(database: &HashSet<String>, filter: &BloomFilter) {
+fn worker(database: &Vec<String>, filter: &BloomFilter) {
     let mut count: f64 = 0.0;
     let start = Instant::now();
     loop {
@@ -138,9 +149,8 @@ fn worker(database: &HashSet<String>, filter: &BloomFilter) {
             if count % 10000.0 == 0.0 {
                 let current_core = std::thread::current().id();
                 let elapsed = start.elapsed().as_secs_f64();
-                println!( "Core {:?} hash/s: {}", current_core, (count / elapsed).round() );
+                println!( "Core {:?} hash/s: {} last address: {}", current_core, (count / elapsed).round(), &address );
             }
         }
-
     }
 }
