@@ -42,10 +42,6 @@ async fn main() {
     let mut filter3: BloomFilter = BloomFilter::with_rate(ERROR_RATE, EXPECTED_SIZE / 3);
     let mut filterB: BloomFilter = BloomFilter::with_rate(ERROR_RATE, EXPECTED_SIZE / 3);
 
-    let mut last1 = 0i64;
-    let mut last3 = 0i64;
-    let mut lastB = 0i64;
-
     if let Ok(lines) = read_lines(DB) {
         for line in lines {
             if let Ok(adress) = line {
