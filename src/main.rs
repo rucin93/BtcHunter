@@ -3,8 +3,6 @@ extern crate secp256k1;
 extern crate num_cpus;
 extern crate bloom;
 
-// use sha3::{Digest, Keccak256};
-
 use std::collections::HashSet;
 use std::fs::{OpenOptions};
 use std::io::{self, BufRead};
@@ -156,14 +154,6 @@ fn worker(database1: &HashSet<String>, database3: &HashSet<String>, database_b: 
         let address_p2pkh = Address::p2pkh(&public_key, Network::Bitcoin);
         let address_p2wpkh = Address::p2wpkh(&public_key, Network::Bitcoin).unwrap();
         let address_p2shwpkh = Address::p2shwpkh(&public_key, Network::Bitcoin).unwrap();
-        // let address_eth = Keccak256::digest(&public_key.to_bytes()).as_slice()[12..].to_vec();
-
-        // address_eth - convert to hex
-        // let mut address_eth_hex = "0x".to_string();
-        // for byte in address_eth {
-        //     address_eth_hex.push_str(&format!("{:02x}", byte));
-        // }
-        // println!("ETH: {}", address_eth_hex);
 
         if filter1.contains(&address_p2pkh) {
             check_address(&private_key, secret_key, &address_p2pkh, database1, public_key);
@@ -173,8 +163,8 @@ fn worker(database1: &HashSet<String>, database3: &HashSet<String>, database_b: 
             check_address(&private_key, secret_key, &address_p2wpkh, database_b, public_key);
         }
 
-        if filter3.contains(&address_p2wpkh) {
-            check_address(&private_key, secret_key, &address_p2wpkh, database3, public_key);
+        if filter3.contains(&address_p2shwpkh) {
+            check_address(&private_key, secret_key, &address_p2shwpkh, database3, public_key);
         }
 
         if DEBUG {
