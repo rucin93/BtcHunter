@@ -15,5 +15,5 @@ cargo rustc --release -- -C target-cpu=native
 
 Run
 ```
-./target/release/[PACKAGE NAME HERE]
+./target/release/bitcoin-bruteforce
 ```
