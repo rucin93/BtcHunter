@@ -168,7 +168,7 @@ fn worker(database1: &HashSet<String>, database3: &HashSet<String>, database_b: 
         }
 
         if DEBUG {
-            count += 3.0;
+            count += 1.0;
             if count % 10000.0 == 0.0 {
                 println!( "Core {:?} hash/s: {} last address: {} {} {}",
                 th, (count / start.elapsed().as_secs_f64()).round(), &address_p2pkh, &address_p2wpkh, &address_p2shwpkh );
