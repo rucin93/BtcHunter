@@ -3,7 +3,8 @@ extern crate secp256k1;
 extern crate num_cpus;
 extern crate bloom;
 
-use std::collections::HashSet;
+// use std::collections::HashSet;
+use hashbrown::HashSet;
 use std::fs::{OpenOptions};
 use std::io::{self, BufRead};
 use std::path::Path;
